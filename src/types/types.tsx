@@ -17,6 +17,7 @@ export type OrderData = {
   customer: Customer;
   order_status: string;
   products: OrderProduct[];
+  created_at: string;
 };
 
 type Customer = {

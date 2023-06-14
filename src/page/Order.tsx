@@ -42,6 +42,8 @@ export default function Order() {
               <Thead>
                 <Tr>
                   <Th>Marketplace</Th>
+                  <Th>Marketplace Order ID</Th>
+                  <Th>Created At</Th>
                   <Th>Customer</Th>
                   <Th>Order Status</Th>
                   <Th>Products</Th>
@@ -57,6 +59,12 @@ export default function Order() {
                             ? "Tokopedia"
                             : "Shopee"}
                         </Td>
+                        <Td>
+                          {order.tokopedia_order_id !== 0
+                            ? order.tokopedia_order_id
+                            : order.shopee_order_id}
+                        </Td>
+                        <Td>{order.created_at}</Td>
                         <Td>
                           <b> Name:</b> {order.customer.customer_name}
                           <br />
