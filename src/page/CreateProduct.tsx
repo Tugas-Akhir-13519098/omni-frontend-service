@@ -4,6 +4,7 @@ import {
   Button,
   Flex,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Heading,
   Input,
@@ -12,8 +13,12 @@ import {
 } from "@chakra-ui/react";
 import SimpleSidebar from "../component/Sidebar";
 import axios from "axios";
+import { useState } from "react";
 
 export default function CreateProduct() {
+  const [isPriceError, setIsPriceError] = useState<boolean>(false);
+  const [isWeightError, setIsWeightError] = useState<boolean>(false);
+  const [isStockError, setIsStockError] = useState<boolean>(false);
   const baseURL = "http://localhost:8080/api/v1/product";
   const toast = useToast();
 
@@ -27,22 +32,52 @@ export default function CreateProduct() {
       description: "",
     },
     onSubmit: (values) => {
-      const reqBody = JSON.stringify(values, null, 2);
-      axios
-        .post(baseURL, reqBody)
-        .then((res) => {
-          console.log(res);
-          toast({
-            title: "Product Created",
-            description: "Successfully created the product.",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
+      if (!(isPriceError || isStockError || isWeightError)) {
+        const reqBody = JSON.stringify(values, null, 2);
+        axios
+          .post(baseURL, reqBody)
+          .then((res) => {
+            console.log(res);
+            toast({
+              title: "Product Created",
+              description: "Successfully created the product.",
+              status: "success",
+              duration: 3000,
+              isClosable: true,
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+            toast({
+              title: "Failed to Create Data",
+              description: err.response.data.message,
+              status: "error",
+              duration: 3000,
+              isClosable: true,
+            });
           });
-        })
-        .catch((err) => console.log(err));
+      }
     },
   });
+
+  const checkError = () => {
+    if (Number(formik.values.weight) < 0) {
+      setIsWeightError(true);
+    } else {
+      setIsWeightError(false);
+    }
+    if (Number(formik.values.stock) < 0) {
+      setIsStockError(true);
+    } else {
+      setIsStockError(false);
+    }
+    if (Number(formik.values.price) < 0) {
+      setIsPriceError(true);
+    } else {
+      setIsPriceError(false);
+    }
+  };
+
   return (
     <SimpleSidebar>
       <Heading size="lg" marginBottom={"20px"}>
@@ -64,7 +99,7 @@ export default function CreateProduct() {
                   required
                 />
               </FormControl>
-              <FormControl>
+              <FormControl isInvalid={isPriceError}>
                 <FormLabel htmlFor="price">Price (Rp)</FormLabel>
                 <Input
                   id="price"
@@ -73,11 +108,21 @@ export default function CreateProduct() {
                   background={"white"}
                   variant="filled"
                   onChange={formik.handleChange}
+                  onKeyUp={() => {
+                    checkError();
+                  }}
                   value={formik.values.price}
                   required
                 />
+                {!isPriceError ? (
+                  <></>
+                ) : (
+                  <FormErrorMessage>
+                    Value must not be negative.
+                  </FormErrorMessage>
+                )}
               </FormControl>
-              <FormControl>
+              <FormControl isInvalid={isWeightError}>
                 <FormLabel htmlFor="weight">Weight (Kg)</FormLabel>
                 <Input
                   id="weight"
@@ -86,11 +131,21 @@ export default function CreateProduct() {
                   background={"white"}
                   variant="filled"
                   onChange={formik.handleChange}
+                  onKeyUp={() => {
+                    checkError();
+                  }}
                   value={formik.values.weight}
                   required
                 />
+                {!isWeightError ? (
+                  <></>
+                ) : (
+                  <FormErrorMessage>
+                    Value must not be negative.
+                  </FormErrorMessage>
+                )}
               </FormControl>
-              <FormControl>
+              <FormControl isInvalid={isStockError}>
                 <FormLabel htmlFor="stock">Stock</FormLabel>
                 <Input
                   id="stock"
@@ -99,9 +154,19 @@ export default function CreateProduct() {
                   background={"white"}
                   variant="filled"
                   onChange={formik.handleChange}
+                  onKeyUp={() => {
+                    checkError();
+                  }}
                   value={formik.values.stock}
                   required
                 />
+                {!isStockError ? (
+                  <></>
+                ) : (
+                  <FormErrorMessage>
+                    Value must not be negative.
+                  </FormErrorMessage>
+                )}
               </FormControl>
               <FormControl>
                 <FormLabel htmlFor="image">Image (Link)</FormLabel>
