@@ -15,10 +15,11 @@ import {
   FlexProps,
 } from "@chakra-ui/react";
 import {
-  // FiHome,
   FiTrendingUp,
   FiCompass,
   FiMenu,
+  FiUser,
+  FiLogOut,
 } from "react-icons/fi";
 import { IconType } from "react-icons";
 import { ReactText } from "react";
@@ -29,16 +30,25 @@ interface LinkItemProps {
   link: string;
 }
 const LinkItems: Array<LinkItemProps> = [
-  // { name: "Home", icon: FiHome },
   {
     name: "Product",
     icon: FiTrendingUp,
-    link: "http://localhost:3000/product",
+    link: "/product",
   },
   {
     name: "Order",
     icon: FiCompass,
-    link: "http://localhost:3000/order",
+    link: "/order",
+  },
+  {
+    name: "Profile",
+    icon: FiUser,
+    link: "/profile",
+  },
+  {
+    name: "Logout",
+    icon: FiLogOut,
+    link: "/logout",
   },
 ];
 

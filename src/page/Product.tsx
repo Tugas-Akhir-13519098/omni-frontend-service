@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import {
   Table,
   Thead,
@@ -19,21 +19,27 @@ import {
 } from "@chakra-ui/react";
 import SimpleSidebar from "../component/Sidebar";
 import { ProductData } from "../types/types";
+import { GetJWTCookie } from "../util/util";
+import { NotAuth } from "../component/Auth";
 
 export default function Product() {
   const baseURL = "http://localhost:8080/api/v1/product";
+  const config: AxiosRequestConfig = {
+    withCredentials: true,
+
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + GetJWTCookie(document.cookie),
+      Accept: "application/json",
+      "Access-Control-Allow-Headers": "set-cookie",
+    },
+  };
   const [products, setProducts] = useState<ProductData[]>();
   const toast = useToast();
-  // const [productID, setProductID] = useState<string>();
-  // const {
-  //   isOpen: isDeleteModalOpen,
-  //   onOpen: onDeleteModalOpen,
-  //   onClose: onDeleteModalClose,
-  // } = useDisclosure();
 
   const getProducts = () => {
     axios
-      .get(baseURL)
+      .get(baseURL, config)
       .then((res) => {
         setProducts(res.data.data);
       })
@@ -51,7 +57,7 @@ export default function Product() {
 
   const sendDeleteRequest = (id: string) => {
     axios
-      .delete(baseURL + "/" + id)
+      .delete(baseURL + "/" + id, config)
       .then((res) => {
         console.log(res);
         getProducts();
@@ -81,27 +87,8 @@ export default function Product() {
   }, []);
 
   return (
-    <div>
-      {/* <Modal isOpen={isDeleteModalOpen} onClose={onDeleteModalClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Delete Product</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            Are you sure that you want to delete the product?
-          </ModalBody>
-
-          <ModalFooter>
-            <Button colorScheme="gray" mr={3} onClick={onDeleteModalClose}>
-              Close
-            </Button>
-            <Button type="submit" colorScheme="red">
-              Delete
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal> */}
-
+    <>
+      <NotAuth />
       <SimpleSidebar>
         <Stack spacing={6}>
           <Flex margin={15}>
@@ -131,7 +118,7 @@ export default function Product() {
                 {products &&
                   products.map((product, i) => {
                     return (
-                      <Tr>
+                      <Tr key={i}>
                         <Td
                           css={{
                             width: "175px",
@@ -189,6 +176,6 @@ export default function Product() {
           </TableContainer>
         </Stack>
       </SimpleSidebar>
-    </div>
+    </>
   );
 }

@@ -38,3 +38,16 @@ type OrderProduct = {
   product_price: number;
   product_quantity: number;
 };
+
+export type UserData = {
+  id: string;
+  email: string;
+  shop_name: string;
+  tokopedia_fs_id: number;
+  tokopedia_shop_id: number;
+  tokopedia_bearer_token: string;
+  shopee_partner_id: number;
+  shopee_shop_id: number;
+  shopee_access_token: string;
+  shopee_sign: string;
+};

@@ -4,7 +4,6 @@ import {
   Button,
   Flex,
   FormControl,
-  FormErrorMessage,
   FormLabel,
   Heading,
   Input,
@@ -13,14 +12,13 @@ import {
 } from "@chakra-ui/react";
 import SimpleSidebar from "../component/Sidebar";
 import axios, { AxiosRequestConfig } from "axios";
-import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ProductData } from "../types/types";
+import { UserData } from "../types/types";
 import { NotAuth } from "../component/Auth";
 import { GetJWTCookie } from "../util/util";
 
-export default function UpdateProduct() {
-  const baseURL = "http://localhost:8080/api/v1/product";
+export default function Profile() {
+  const baseURL = "http://localhost:8080/api/v1/user";
   const config: AxiosRequestConfig = {
     withCredentials: true,
 
@@ -31,31 +29,31 @@ export default function UpdateProduct() {
       "Access-Control-Allow-Headers": "set-cookie",
     },
   };
-  const [product, setProduct] = useState<ProductData>();
-  const [isPriceError, setIsPriceError] = useState<boolean>(false);
-  const [isWeightError, setIsWeightError] = useState<boolean>(false);
-  const [isStockError, setIsStockError] = useState<boolean>(false);
+  const [user, setUser] = useState<UserData>();
   const toast = useToast();
-  let [searchParams] = useSearchParams();
 
   const formik = useFormik({
     initialValues: {
-      name: product?.name,
-      price: product?.price,
-      weight: product?.weight,
-      stock: product?.stock,
-      image: product?.image,
-      description: product?.description,
+      email: user?.email,
+      shop_name: user?.shop_name,
+      tokopedia_fs_id: user?.tokopedia_fs_id,
+      tokopedia_shop_id: user?.tokopedia_shop_id,
+      tokopedia_bearer_token: user?.tokopedia_bearer_token,
+      shopee_partner_id: user?.shopee_partner_id,
+      shopee_shop_id: user?.shopee_shop_id,
+      shopee_access_token: user?.shopee_access_token,
+      shopee_sign: user?.shopee_sign,
     },
     onSubmit: (values) => {
       const reqBody = JSON.stringify(values, null, 2);
+
       axios
-        .put(baseURL + "/" + product?.id, reqBody, config)
+        .put(baseURL, reqBody, config)
         .then((res) => {
           console.log(res);
           toast({
-            title: "Product Updated",
-            description: "Successfully updated the product.",
+            title: "User Updated",
+            description: "Successfully updated the user.",
             status: "success",
             duration: 3000,
             isClosable: true,
@@ -64,7 +62,7 @@ export default function UpdateProduct() {
         .catch((err) => {
           console.log(err);
           toast({
-            title: "Failed to Update Product",
+            title: "Failed to Update User",
             description: "Error: " + err.response.data.message,
             status: "error",
             duration: 3000,
@@ -75,11 +73,12 @@ export default function UpdateProduct() {
     enableReinitialize: true,
   });
 
-  const getProductById = (id: string | null) => {
+  const getUser = () => {
     axios
-      .get(baseURL + "/" + id, config)
+      .get(baseURL, config)
       .then((res) => {
-        setProduct(res.data.data);
+        console.log(res);
+        setUser(res.data.data);
       })
       .catch((err) => {
         console.log(err);
@@ -93,27 +92,8 @@ export default function UpdateProduct() {
       });
   };
 
-  const checkError = () => {
-    if (Number(formik.values.weight) < 0) {
-      setIsWeightError(true);
-    } else {
-      setIsWeightError(false);
-    }
-    if (Number(formik.values.stock) < 0) {
-      setIsStockError(true);
-    } else {
-      setIsStockError(false);
-    }
-    if (Number(formik.values.price) < 0) {
-      setIsPriceError(true);
-    } else {
-      setIsPriceError(false);
-    }
-  };
-
   useEffect(() => {
-    const id = searchParams.get("id");
-    getProductById(id);
+    getUser();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -122,116 +102,112 @@ export default function UpdateProduct() {
       <NotAuth />
       <SimpleSidebar>
         <Heading size="lg" marginBottom={"20px"}>
-          Update Product
+          Profile
         </Heading>
         <Flex>
           <Box width={"80%"} rounded="md">
             <form onSubmit={formik.handleSubmit}>
               <VStack spacing={4} align="flex-start">
                 <FormControl>
-                  <FormLabel htmlFor="name">Name</FormLabel>
+                  <FormLabel htmlFor="name">Shop Name</FormLabel>
                   <Input
-                    id="name"
-                    name="name"
+                    id="shop_name"
+                    name="shop_name"
                     background={"white"}
                     variant="filled"
                     onChange={formik.handleChange}
-                    value={formik.values.name}
-                    required
-                  />
-                </FormControl>
-                <FormControl isInvalid={isPriceError}>
-                  <FormLabel htmlFor="price">Price (Rp)</FormLabel>
-                  <Input
-                    id="price"
-                    name="price"
-                    type="number"
-                    background={"white"}
-                    variant="filled"
-                    onChange={formik.handleChange}
-                    onKeyUp={() => {
-                      checkError();
-                    }}
-                    value={formik.values.price}
-                    required
-                  />
-                  {!isPriceError ? (
-                    <></>
-                  ) : (
-                    <FormErrorMessage>
-                      Value must not be negative.
-                    </FormErrorMessage>
-                  )}
-                </FormControl>
-                <FormControl isInvalid={isWeightError}>
-                  <FormLabel htmlFor="weight">Weight (Kg)</FormLabel>
-                  <Input
-                    id="weight"
-                    name="weight"
-                    type="number"
-                    background={"white"}
-                    variant="filled"
-                    onChange={formik.handleChange}
-                    onKeyUp={() => {
-                      checkError();
-                    }}
-                    value={formik.values.weight}
-                    required
-                  />
-                  {!isWeightError ? (
-                    <></>
-                  ) : (
-                    <FormErrorMessage>
-                      Value must not be negative.
-                    </FormErrorMessage>
-                  )}
-                </FormControl>
-                <FormControl isInvalid={isStockError}>
-                  <FormLabel htmlFor="stock">Stock</FormLabel>
-                  <Input
-                    id="stock"
-                    name="stock"
-                    type="number"
-                    background={"white"}
-                    variant="filled"
-                    onChange={formik.handleChange}
-                    onKeyUp={() => {
-                      checkError();
-                    }}
-                    value={formik.values.stock}
-                    required
-                  />
-                  {!isStockError ? (
-                    <></>
-                  ) : (
-                    <FormErrorMessage>
-                      Value must not be negative.
-                    </FormErrorMessage>
-                  )}
-                </FormControl>
-                <FormControl>
-                  <FormLabel htmlFor="image">Image (Link)</FormLabel>
-                  <Input
-                    id="image"
-                    name="image"
-                    type="text"
-                    background={"white"}
-                    variant="filled"
-                    onChange={formik.handleChange}
-                    value={formik.values.image}
+                    value={formik.values.shop_name}
                     required
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel htmlFor="description">Description</FormLabel>
+                  <FormLabel htmlFor="price">Tokopedia FS ID</FormLabel>
                   <Input
-                    id="description"
-                    name="description"
+                    id="tokopedia_fs_id"
+                    name="tokopedia_fs_id"
+                    type="number"
+                    background={"white"}
+                    variant="filled"
+                    onChange={formik.handleChange}
+                    value={formik.values.tokopedia_fs_id}
+                    required
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel htmlFor="weight">Tokopedia Shop ID</FormLabel>
+                  <Input
+                    id="tokopedia_shop_id"
+                    name="tokopedia_shop_id"
+                    type="number"
+                    background={"white"}
+                    variant="filled"
+                    onChange={formik.handleChange}
+                    value={formik.values.tokopedia_shop_id}
+                    required
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel htmlFor="stock">Tokopedia Bearer Token</FormLabel>
+                  <Input
+                    id="tokopedia_bearer_token"
+                    name="tokopedia_bearer_token"
                     type="text"
                     background={"white"}
                     variant="filled"
                     onChange={formik.handleChange}
-                    value={formik.values.description}
+                    value={formik.values.tokopedia_bearer_token}
+                    required
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel htmlFor="price">Shopee Partner ID</FormLabel>
+                  <Input
+                    id="shopee_partner_id"
+                    name="shopee_partner_id"
+                    type="number"
+                    background={"white"}
+                    variant="filled"
+                    onChange={formik.handleChange}
+                    value={formik.values.shopee_partner_id}
+                    required
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel htmlFor="weight">Shopee Shop ID</FormLabel>
+                  <Input
+                    id="shopee_shop_id"
+                    name="shopee_shop_id"
+                    type="number"
+                    background={"white"}
+                    variant="filled"
+                    onChange={formik.handleChange}
+                    value={formik.values.shopee_shop_id}
+                    required
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel htmlFor="image">Shopee Access Token</FormLabel>
+                  <Input
+                    id="shopee_access_token"
+                    name="shopee_access_token"
+                    type="text"
+                    background={"white"}
+                    variant="filled"
+                    onChange={formik.handleChange}
+                    value={formik.values.shopee_access_token}
+                    required
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel htmlFor="image">Shopee Sign</FormLabel>
+                  <Input
+                    id="shopee_sign"
+                    name="shopee_sign"
+                    type="text"
+                    background={"white"}
+                    variant="filled"
+                    onChange={formik.handleChange}
+                    value={formik.values.shopee_sign}
                     required
                   />
                 </FormControl>
