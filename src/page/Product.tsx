@@ -62,8 +62,8 @@ export default function Product() {
         console.log(res);
         getProducts();
         toast({
-          title: "Product Created",
-          description: "Successfully created the product.",
+          title: "Product Deleted",
+          description: "Successfully deleted the product.",
           status: "success",
           duration: 3000,
           isClosable: true,
